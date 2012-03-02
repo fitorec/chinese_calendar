@@ -1,13 +1,16 @@
 /*
- * 
- * @link-idea: www.cintamani.com.ar/users/luzdevida/varios/fengshui3.htm 
- * @link-idea: http://www.espaciotiempo.com/cursos/fengshui/kua.jsp
- * @http://elfengshui.blogspot.com/2010/02/como-hallar-el-numero-kua.html
- **/
+ * Kua.js
+ *
+ * Copyright 2012, Fitorec
+ * licensed under the MIT.
+ *
+ */
+ 
 
 /* Este arreglo contiene las fechas de inicio del año chino, en formato mes.día
  * la posicion 0 refiere al año 1900
  * 
+ * Mayor info: http://es.wikipedia.org/wiki/A%C3%B1o_Nuevo_chino
  * */
 var chinese_year_init = new Array(
 		"1.31","2.19","2.08","1.29","2.16","2.04","1.25","2.13","2.02","1.22", //1900-1909
@@ -24,9 +27,15 @@ var chinese_year_init = new Array(
 		"2.14","2.03","1.23","2.10","1.31","2.19","2.08","1.28","2.16","2.05", //2010-2019
 		"1.25","2.12","2.01","1.22","2.10","1.29","2.17","2.06","1.26","2.13"  //2020-2029
 );
+
  /*
+  * Calcula el número KUA apartir de la fecha de nacimiento y el sexo
   * 
-  * @param sex man or woman
+  * @param string year beetwen(1900-2029)
+  * @param string month beetwen(1-12)
+  * @param string day beetwen(1-31)
+  * @param string sex man or woman
+  * @return the KUA number
   **/
 function kua(year, month, day, sex){
 	year = Number(year);
@@ -72,9 +81,16 @@ function kua(year, month, day, sex){
 		return result;
 }
 
+ /*
+  * Reduce un numero de n digitos a una, sumando los 2 ultimos asta que se cumpla
+  * 
+  * @param Number number
+  * @return Number number 
+  **/
+  
 function reduce_number(number){
 	str_num = new String(number);
 	if(str_num.length>1)
 		return reduce_number( Number( str_num.charAt(str_num.length-1) ) +  Number(str_num.charAt(str_num.length-2)) );
-	return parseInt(number);
+	return Number(number);
 }
