@@ -26,29 +26,102 @@
 <head>
 	<title>Calculo de tu kua</title>
 	<meta http-equiv="content-type" content="text/html;charset=utf-8" />
-	<script language="Javascript"  type="text/javascript" src="src/kua.js"></script>
+	<link rel="stylesheet" type="text/css" media="all" href="css/chineseCal.css" />
+	<link rel="stylesheet" type="text/css" href="css/style.css" />
+	<link rel="stylesheet" type="text/css" href="css/commons.css" />
+	
+	<script language="Javascript"  type="text/javascript" src="../src/ChineseCalendar.js"></script>
+	<script language="Javascript"  type="text/javascript" src="../src/lang/chinese_data_es.js"></script>
 	<script language="Javascript"  type="text/javascript">
 	window.onload = function () {
-		//
+		//actualiza_kua();
+		for(i=2; i<10; i++){
+				pos_x=(i-1)*100;
+				document.getElementById("item_kua_num_"+i).style.backgroundPosition = '-'+pos_x+'px 0px';
+		}
 	};
+	
+	kua_actual = 0;
+	num_max_interacciones = 10;
+	chineCal = null;
+	
+	function actualiza_kua(){
+			for(i=1; i<10; i++){
+				current_item = document.getElementById("item_kua_num_"+i);
+				pos_x=(i-1)*100;
+				pos_y=0;
+				border_color = '#AAA';
+				margin = '1px';
+				if( (kua_actual%9)+1==i ){
+					pos_y=100;
+					border_color = '#FFF';
+					margin = '2px';
+				}
+				///////////////////////////
+				current_item.style.backgroundPosition = '-'+pos_x+'px -'+pos_y+'px';
+				current_item.style.backgroundColor = border_color;
+				current_item.style.border = '5px solid '+border_color;
+				current_item.style.margin = margin;				
+			}
+			kua_actual++;
+			if(kua_actual<num_max_interacciones)
+				setTimeout("actualiza_kua()",((Math.floor(Math.random() * 2))+1)*50);
+			else
+				kua_actual = 0;
+	}
+	
 	function kual_form(){
-		kua_number = kua(
-			document.getElementById('year').value,
-			document.getElementById('month').value,
-			document.getElementById('day').value,
-			document.getElementById('sex').value
-			);
-		alert( 'El calculo de tu kua es' +  kua_number );
-		
-		//(year, month, day, sex)
-		
+		chineCal = new ChineseCalendar(
+					document.getElementById('year').value,
+					document.getElementById('month').value,
+					document.getElementById('day').value
+				);
+		chineCal.kua(document.getElementById('sex').value);
+		kua_actual = 0;
+		num_max_interacciones = Math.floor(Math.random() * 2)*9 + 9 + chineCal.kua_number;
+		actualiza_kua();
+		//
+		document.getElementById('info_right').innerHTML = '';
+		genera_contenido();
 		return false;
+	}
+	function genera_contenido(){
+		if(kua_actual!=0){
+			setTimeout("genera_contenido()",500);
+			return false;
+		}
+		///genera el contenido de elemento info_right
+		content = "<h3><div class='zodiacal_sign' id='sign_"+chineCal.zodiac_sign()+"'></div>Signo zodiacal: <em>"+chineCal.zodiac_sign()+"</em></h3><br>";
+		content += "<h3>Número kua: <em>"+chineCal.kua_number+"</em></h3>";
+		content += '<h3>Año de nacimiento: <em>'+chineCal.year+'</em></h3>';
+		content += '<p>El año chino de '+chineCal.year+' inicio el '+chineCal.chinese_init_year[1]+' de '+(chineCal.chinese_init_year[0]==1 ? 'Enero': 'Febrero')+'.</p>';
+		content += '<h2>feng shui</h2>';
+		
+		p_favorables = '<h3>Puntos favorables</h3><dl>';
+		p_desfavorables = '<h3>Puntos desfavorables</h3><dl>';
+		for(i=0; i<4; ++i){
+			pf = chinese_zodiac_data.puntos_favorables[i];
+			p_favorables += '<dt>'+pf.nombre.split('-')[0]+' <b>'+pf.nombre.split('-')[1]+'</b></dt>';
+			p_favorables += '<dd>'+pf.descripcion+' <b>'+pf.data[chineCal.kua_number-1]+'</b></dd>';
+			
+			pd = chinese_zodiac_data.puntos_desfavorables[i];
+			p_desfavorables += '<dt>'+pd.nombre.split('-')[0]+' <b>'+pd.nombre.split('-')[1]+'</b></dt>';
+			p_desfavorables += '<dd>'+pd.descripcion+' <b>'+pd.data[chineCal.kua_number-1]+'</b></dd>';
+			
+		}
+		content += p_favorables+'</dl>'+p_desfavorables+'</dl>';
+		content +='<b>Ideas base:</b> <a href="http://www.fengshui-mundo.com/kua_number.htm"> http://www.fengshui-mundo.com/kua_number.htm</a>';
+		
+		document.getElementById('info_right').innerHTML = content;
+		
 	}
 	</script>
 </head>
 <body>
+<div id='content'>
+<div id="info_left">
 	<form action="#" id='kua_form' method="post">
-		<label>Año de nacimiento:</label>
+		<label>Año:</label>
 		
 		<select size="1" name="year" id='year'>
         <option>1920</option>
@@ -137,7 +210,7 @@
         <option>2003</option>
         <option>2004</option>
         <option>2005</option>
-        </select><br />
+        </select>
 		
 		<label>Mes:</label>
 		<select size="1" id="month">
@@ -154,7 +227,8 @@
 			<option>11</option>
 			<option>12</option>
         </select>
-        
+
+		<label for="day">Día</label>
         <select size="1" name="day" id='day'>
 			<option selected>01</option>
 			<option>02</option>
@@ -187,15 +261,34 @@
 			<option>29</option>
 			<option>30</option>
 			<option>31</option>
-        </select>
+        </select><br />
         
-		<label>Sexo:</label>
+		<label for='sex'>Sexo:</label>
 		<select size="1" id="sex">
 			<option value='man' selected>Hombre</option>
 			<option value='woman' >Mujer</option>
         </select>
-		<button onClick='javascript:kual_form(); return 0;'>Calcular</button>
+		<button onClick='javascript:return kual_form();' class='get-code'>Calcular</button><br />
 	</form>
+	<div id='content_kua'>
+		<div class='item_kua' id='item_kua_num_4'></div>
+		<div class='item_kua' id='item_kua_num_9'></div>
+		<div class='item_kua' id='item_kua_num_2'></div><br clear='all'/>
+		<div class='item_kua' id='item_kua_num_3'></div>
+		<div class='item_kua' id='item_kua_num_5'></div>
+		<div class='item_kua' id='item_kua_num_7'></div><br  clear='all'/>
+		<div class='item_kua' id='item_kua_num_8'></div>
+		<div class='item_kua' id='item_kua_num_1'></div>
+		<div class='item_kua' id='item_kua_num_6'></div>
+	</div>
+</div>
+
+<div id="info_right">
+</div>
+
+<br clear='all'>
+
+</div>
 </body>
 
 </html>
