@@ -16,7 +16,24 @@
  * @param string sex man or woman
  */
 ChineseCalendar = function( year, month, day){
-	this.chinese_years_init = new Array(
+	year = Number(year);
+	/* Normalizacion del año: reducimos en uno el año en caso que la fecha de inicio(de entrada)
+	 * es inferior al inicio del año chino*/
+	init_year = this.chinese_init_year(year);
+	if( Number((month-1)*31 + day) < Number((init_year.month-1)*31 + init_year.day) )
+		year--;
+	this.year = year;
+	this.month = month;
+	this.day = day;
+}
+ /*
+  * Devuelve el el inicio del año chino que se recibe
+  * 
+  * @param Number number
+  * @return the KUA number
+  **/
+ChineseCalendar.prototype.chinese_init_year = function(year){
+	chinese_years_init = new Array(
 		"1.31","2.19","2.08","1.29","2.16","2.04","1.25","2.13","2.02","1.22", //1900-1909
 		"2.10","1.30","2.18","2.06","1.26","2.14","2.03","1.23","2.11","2.01", //1910-1919
 		"2.20","2.08","1.28","2.16","2.05","1.25","2.13","2.02","1.23","2.10", //1920-1929
@@ -31,15 +48,9 @@ ChineseCalendar = function( year, month, day){
 		"2.14","2.03","1.23","2.10","1.31","2.19","2.08","1.28","2.16","2.05", //2010-2019
 		"1.25","2.12","2.01","1.22","2.10","1.29","2.17","2.06","1.26","2.13"  //2020-2029
 	);
-	year = Number(year);
-	/* Normalizacion del año: reducimos en uno el año en caso que la fecha de inicio(de entrada)
-	 * es inferior al inicio del año chino*/
-	this.chinese_init_year = this.chinese_years_init[year-1900].split('.');
-	if( Number((month-1)*31 + day) < Number((this.chinese_init_year[1]-1)*31 + this.chinese_init_year[0]) )
-		year--;
-	this.year = year;
-	this.month = month;
-	this.day = day;
+	var index = Number(year - 1900);
+	var year_ini = chinese_years_init[index].split('.');
+	return { 'month' : year_ini[0], 'day': year_ini[1]};
 }
  /*
   * Calcula el número KUA apartir de la fecha de nacimiento y el sexo
@@ -69,7 +80,6 @@ ChineseCalendar.prototype._generate_kua =  function(sex){
 	}
 	return this.kua_number;
 }
-
  /*
   * Regresa el valor kua calculado
   * 
@@ -112,4 +122,23 @@ ChineseCalendar.prototype.zodiac_sign = function (){
 		"Horse",
 		"Sheep"
 	)[Number(this.year%12)];
+}
+
+/*
+ *	http://en.wikipedia.org/wiki/Chinese_zodiac
+ */
+ChineseCalendar.prototype.element = function (){
+	switch (this.kua_number)
+	{
+		case 1: return 'Agua';
+		case 2: return "Tierra";
+		case 3: return "Madera";
+		case 4: return "Madera";
+		case 5: return "Tierra";
+		case 6: return "Metal";
+		case 7: return "Metal";
+		case 8: return "Tierra";
+		case 9: return "Tierra";
+		default: return null;
+	}
 }
