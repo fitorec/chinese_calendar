@@ -19,39 +19,57 @@ ChineseCalendar = function( year, month, day){
 	year = Number(year);
 	/* Normalizacion del año: reducimos en uno el año en caso que la fecha de inicio(de entrada)
 	 * es inferior al inicio del año chino*/
-	init_year = this.chinese_init_year(year);
+	init_year = ChineseCalendar.chinese_init_year(year);
 	if( Number((month-1)*31 + day) < Number((init_year.month-1)*31 + init_year.day) )
 		year--;
 	this.year = year;
 	this.month = month;
 	this.day = day;
 }
+/* componentes estaticos(solo ocupan un espacio en memoria) */
+ChineseCalendar.array_years_init = Array(
+	"1.31","2.19","2.08","1.29","2.16","2.04","1.25","2.13","2.02","1.22", //1900-1909
+	"2.10","1.30","2.18","2.06","1.26","2.14","2.03","1.23","2.11","2.01", //1910-1919
+	"2.20","2.08","1.28","2.16","2.05","1.25","2.13","2.02","1.23","2.10", //1920-1929
+	"1.30","2.17","2.06","1.26","2.14","2.04","1.24","2.11","1.31","2.19", //1930-1939
+	"2.08","1.27","2.15","2.05","1.25","2.13","2.02","1.22","2.10","1.29", //1940-1949
+	"2.17","2.06","1.27","2.14","2.03","1.24","2.12","1.31","2.18","2.08", //1950-1959
+	"1.28","2.15","2.05","1.25","2.13","2.02","1.21","2.09","1.30","2.17", //1960-1969
+	"2.06","1.27","2.15","2.03","1.23","2.11","1.31","2.18","2.07","1.28", //1970-1979
+	"2.16","2.05","1.25","2.13","2.02","2.20","2.09","1.29","2.17","2.06", //1980-1989
+	"1.27","2.15","2.04","1.23","2.10","1.31","2.19","2.07","1.28","2.16", //1990-1999
+	"2.05","1.24","2.12","2.01","1.22","2.09","1.29","2.18","2.07","1.26", //2000-2009
+	"2.14","2.03","1.23","2.10","1.31","2.19","2.08","1.28","2.16","2.05", //2010-2019
+	"1.25","2.12","2.01","1.22","2.10","1.29","2.17","2.06","1.26","2.13"  //2020-2029
+);
+
+ChineseCalendar.array_zodiac_signs = Array(
+		"Monkey",
+		"Rooster",
+		"Dog",
+		"Pig",
+		"Rat",
+		"Ox",
+		"Tiger",
+		"Rabbit",
+		"Dragon",
+		"Snake",
+		"Horse",
+		"Sheep"
+);
+
  /*
   * Devuelve el el inicio del año chino que se recibe
   * 
   * @param Number number
   * @return the KUA number
   **/
-ChineseCalendar.prototype.chinese_init_year = function(year){
-	chinese_years_init = new Array(
-		"1.31","2.19","2.08","1.29","2.16","2.04","1.25","2.13","2.02","1.22", //1900-1909
-		"2.10","1.30","2.18","2.06","1.26","2.14","2.03","1.23","2.11","2.01", //1910-1919
-		"2.20","2.08","1.28","2.16","2.05","1.25","2.13","2.02","1.23","2.10", //1920-1929
-		"1.30","2.17","2.06","1.26","2.14","2.04","1.24","2.11","1.31","2.19", //1930-1939
-		"2.08","1.27","2.15","2.05","1.25","2.13","2.02","1.22","2.10","1.29", //1940-1949
-		"2.17","2.06","1.27","2.14","2.03","1.24","2.12","1.31","2.18","2.08", //1950-1959
-		"1.28","2.15","2.05","1.25","2.13","2.02","1.21","2.09","1.30","2.17", //1960-1969
-		"2.06","1.27","2.15","2.03","1.23","2.11","1.31","2.18","2.07","1.28", //1970-1979
-		"2.16","2.05","1.25","2.13","2.02","2.20","2.09","1.29","2.17","2.06", //1980-1989
-		"1.27","2.15","2.04","1.23","2.10","1.31","2.19","2.07","1.28","2.16", //1990-1999
-		"2.05","1.24","2.12","2.01","1.22","2.09","1.29","2.18","2.07","1.26", //2000-2009
-		"2.14","2.03","1.23","2.10","1.31","2.19","2.08","1.28","2.16","2.05", //2010-2019
-		"1.25","2.12","2.01","1.22","2.10","1.29","2.17","2.06","1.26","2.13"  //2020-2029
-	);
+ChineseCalendar.chinese_init_year = function(year){
 	var index = Number(year - 1900);
-	var year_ini = chinese_years_init[index].split('.');
+	var year_ini = ChineseCalendar.array_years_init[index].split('.');
 	return { 'month' : year_ini[0], 'day': year_ini[1]};
 }
+
  /*
   * Calcula el número KUA apartir de la fecha de nacimiento y el sexo
   * 
@@ -108,26 +126,12 @@ ChineseCalendar.prototype.reduce_number = function (number){
  *	http://en.wikipedia.org/wiki/Chinese_zodiac
  */
 ChineseCalendar.prototype.zodiac_sign = function (){
-	return Array(
-		"Monkey",
-		"Rooster",
-		"Dog",
-		"Pig",
-		"Rat",
-		"Ox",
-		"Tiger",
-		"Rabbit",
-		"Dragon",
-		"Snake",
-		"Horse",
-		"Sheep"
-	)[Number(this.year%12)];
+	return ChineseCalendar.array_zodiac_signs[Number(this.year%12)];
 }
-
 /*
  *	http://en.wikipedia.org/wiki/Chinese_zodiac
  */
-ChineseCalendar.prototype.element = function (){
+ChineseCalendar.element = function (){
 	switch (this.kua_number)
 	{
 		case 1: return 'Agua';
