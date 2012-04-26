@@ -131,7 +131,7 @@ ChineseCalendar.prototype.zodiac_sign = function (){
 /*
  *	http://en.wikipedia.org/wiki/Chinese_zodiac
  */
-ChineseCalendar.element = function (){
+ChineseCalendar.prototype.element = function (){
 	switch (this.kua_number)
 	{
 		case 1: return 'Agua';
